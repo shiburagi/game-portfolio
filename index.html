@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Commander Profile | M. Norzariman Razari</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -26,6 +26,7 @@
             margin: 0;
             overflow: hidden;
             user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         /* Tactical Canvas Background */
@@ -87,7 +88,8 @@
 
         /* Nav Buttons */
         .nav-btn {
-            display: block;
+            display: flex;
+            align-items: center;
             width: 100%;
             text-align: left;
             padding: 0.75rem 1rem;
@@ -99,18 +101,7 @@
             cursor: pointer;
             text-transform: uppercase;
             letter-spacing: 1px;
-        }
-        .nav-btn:hover {
-            background: var(--primary-dim);
-            border-left-color: var(--primary);
-            color: var(--primary);
-            padding-left: 1.5rem;
-        }
-        .nav-btn.active {
-            background: var(--primary-dim);
-            border: 1px solid var(--primary);
-            border-left: 4px solid var(--primary);
-            color: var(--primary);
+            white-space: nowrap;
         }
 
         /* Content Area Custom Scrollbar */
@@ -118,15 +109,58 @@
             overflow-y: auto;
             scrollbar-width: thin;
             scrollbar-color: var(--secondary) transparent;
+            /* Safe area for mobile home bars */
+            padding-bottom: env(safe-area-inset-bottom, 1rem); 
         }
         .content-scroll::-webkit-scrollbar {
-            width: 6px;
+            width: 4px;
         }
         .content-scroll::-webkit-scrollbar-track {
             background: transparent;
         }
         .content-scroll::-webkit-scrollbar-thumb {
             background-color: var(--secondary);
+        }
+
+        /* Hide scrollbar for mobile nav */
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Desktop specific Nav Hover */
+        @media (min-width: 768px) {
+            .nav-btn:hover {
+                background: var(--primary-dim);
+                border-left-color: var(--primary);
+                color: var(--primary);
+                padding-left: 1.5rem;
+            }
+            .nav-btn.active {
+                background: var(--primary-dim);
+                border: 1px solid var(--primary);
+                border-left: 4px solid var(--primary);
+                color: var(--primary);
+            }
+        }
+
+        /* Mobile specific Nav layout */
+        @media (max-width: 767px) {
+            .nav-btn {
+                width: auto;
+                border-left: none;
+                border-bottom: 2px solid var(--secondary);
+                padding: 0.5rem 1rem;
+                flex-shrink: 0;
+            }
+            .nav-btn.active {
+                background: var(--primary-dim);
+                border-bottom: 3px solid var(--primary);
+                color: var(--primary);
+            }
         }
 
         /* Glitch text effect for headers */
@@ -140,9 +174,11 @@
             border-left: 2px solid transparent;
             transition: all 0.2s;
         }
-        .data-row:hover {
-            border-left: 2px solid var(--primary);
-            background: rgba(102, 252, 241, 0.05);
+        @media (hover: hover) {
+            .data-row:hover {
+                border-left: 2px solid var(--primary);
+                background: rgba(102, 252, 241, 0.05);
+            }
         }
 
         /* Loading animation for content switch */
@@ -171,66 +207,68 @@
     <canvas id="tactical-map"></canvas>
     <div class="scanlines"></div>
 
-    <!-- Main Layout Container -->
-    <div class="relative z-10 h-screen w-screen flex flex-col p-2 md:p-6 max-w-7xl mx-auto">
+    <!-- Main Layout Container - Uses 100dvh to fix mobile URL bar jumping -->
+    <div class="relative z-10 h-[100dvh] w-screen flex flex-col p-2 md:p-6 max-w-7xl mx-auto overflow-hidden">
         
         <!-- Header Panel -->
-        <header class="ui-panel p-4 mb-4 flex flex-col md:flex-row justify-between items-center gap-4 shrink-0">
-            <div>
-                <h1 class="text-xl md:text-3xl font-bold glitch-text tracking-wider uppercase">
+        <header class="ui-panel p-3 md:p-4 mb-2 md:mb-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-3 shrink-0">
+            <div class="w-full md:w-auto">
+                <h1 class="text-lg md:text-3xl font-bold glitch-text tracking-wider uppercase truncate">
                     <i class="fa-solid fa-satellite-dish mr-2 text-xs md:text-base align-middle"></i>
-                    CMD: M. Norzariman Razari
+                    CMD: M. Norzariman
                 </h1>
-                <p class="text-xs md:text-sm text-[var(--secondary)] mt-1 uppercase">
-                    [ Class: Mobile App Developer | Specialization: Flutter & Android ]
+                <p class="text-[10px] md:text-sm text-[var(--secondary)] mt-1 uppercase truncate">
+                    [ Class: Mobile App Dev | Spec: Flutter & Android ]
                 </p>
             </div>
-            <div class="text-right border border-[var(--secondary)] p-2 bg-[var(--bg-color)]">
-                <div class="text-[10px] text-[var(--text-muted)] uppercase mb-1">Current Coordinates</div>
-                <div class="text-[var(--primary)] uppercase flex items-center gap-2 text-xs md:text-sm">
-                    <i class="fa-solid fa-location-crosshairs"></i>
-                    Petaling Jaya, Selangor, MY
+            <div class="w-full md:w-auto text-left md:text-right border border-[var(--secondary)] p-2 bg-[var(--bg-color)] flex md:block justify-between items-center">
+                <div>
+                    <div class="hidden md:block text-[10px] text-[var(--text-muted)] uppercase mb-1">Current Coordinates</div>
+                    <div class="text-[var(--primary)] uppercase flex items-center gap-2 text-xs md:text-sm">
+                        <i class="fa-solid fa-location-crosshairs"></i>
+                        Petaling Jaya, MY
+                    </div>
                 </div>
-                <div class="text-[10px] text-[var(--secondary)] mt-1">SYS.STATUS: ONLINE <span class="blinker"></span></div>
+                <div class="text-[10px] text-[var(--secondary)] md:mt-1">SYS: ONLINE <span class="blinker"></span></div>
             </div>
         </header>
 
         <!-- Body Grid -->
-        <div class="flex flex-col md:flex-row gap-4 flex-grow min-h-0">
+        <div class="flex flex-col md:flex-row gap-2 md:gap-4 flex-grow min-h-0">
             
-            <!-- Navigation Sidebar (Left) -->
-            <nav class="ui-panel p-4 flex flex-col gap-2 w-full md:w-64 shrink-0 overflow-y-auto">
-                <div class="text-xs text-[var(--secondary)] border-b border-[var(--secondary)] pb-1 mb-2">
+            <!-- Navigation Sidebar (Turns into horizontal scroll on mobile) -->
+            <nav class="ui-panel p-2 md:p-4 flex flex-row md:flex-col gap-2 w-full md:w-64 shrink-0 overflow-x-auto md:overflow-y-auto no-scrollbar">
+                <div class="hidden md:block text-xs text-[var(--secondary)] border-b border-[var(--secondary)] pb-1 mb-2">
                     [ TACTICAL MENU ]
                 </div>
                 <button class="nav-btn active" onclick="loadModule('overview', this)">
-                    <i class="fa-solid fa-id-card mr-2 w-4"></i> Overview
+                    <i class="fa-solid fa-id-card mr-2 w-4 text-center"></i> Overview
                 </button>
                 <button class="nav-btn" onclick="loadModule('tech-tree', this)">
-                    <i class="fa-solid fa-network-wired mr-2 w-4"></i> Tech Tree
+                    <i class="fa-solid fa-network-wired mr-2 w-4 text-center"></i> Tech Tree
                 </button>
                 <button class="nav-btn" onclick="loadModule('campaigns', this)">
-                    <i class="fa-solid fa-timeline mr-2 w-4"></i> Campaigns
+                    <i class="fa-solid fa-timeline mr-2 w-4 text-center"></i> Campaigns
                 </button>
                 <button class="nav-btn" onclick="loadModule('archives', this)">
-                    <i class="fa-solid fa-medal mr-2 w-4"></i> Archives
+                    <i class="fa-solid fa-medal mr-2 w-4 text-center"></i> Archives
                 </button>
                 <button class="nav-btn" onclick="loadModule('comms', this)">
-                    <i class="fa-solid fa-tower-broadcast mr-2 w-4"></i> Comms Link
+                    <i class="fa-solid fa-tower-broadcast mr-2 w-4 text-center"></i> Comms Link
                 </button>
             </nav>
 
-            <!-- Main Display Area (Right) -->
-            <main class="ui-panel p-4 md:p-6 flex-grow flex flex-col min-h-0">
-                <div class="flex justify-between items-center border-b border-[var(--secondary)] pb-2 mb-4 shrink-0">
-                    <h2 id="module-title" class="text-lg md:text-xl text-[var(--primary)] uppercase tracking-widest">
+            <!-- Main Display Area (Right/Bottom) -->
+            <main class="ui-panel p-3 md:p-6 flex-grow flex flex-col min-h-0">
+                <div class="flex justify-between items-center border-b border-[var(--secondary)] pb-2 mb-3 md:mb-4 shrink-0">
+                    <h2 id="module-title" class="text-base md:text-xl text-[var(--primary)] uppercase tracking-widest truncate mr-2">
                         // Module_Loading...
                     </h2>
-                    <div class="text-xs text-[var(--text-muted)]" id="module-id">ID: 0x0000</div>
+                    <div class="text-[10px] md:text-xs text-[var(--text-muted)] shrink-0" id="module-id">ID: 0x00</div>
                 </div>
                 
                 <!-- Dynamic Content Container -->
-                <div id="display-screen" class="content-scroll flex-grow pr-2">
+                <div id="display-screen" class="content-scroll flex-grow pr-1 md:pr-2">
                     <!-- Content injected via JS -->
                 </div>
             </main>
@@ -238,30 +276,30 @@
     </div>
 
     <script>
-        // --- DATA STRUCTURE (Extracted from PDF) ---
+        // --- DATA STRUCTURE ---
         const database = {
             'overview': {
                 title: '// SYSTEM_OVERVIEW',
                 id: 'SYS-01',
                 html: `
-                    <div class="animate-enter space-y-6">
-                        <div class="border border-[var(--secondary)] p-4 bg-black/50">
-                            <h3 class="text-[var(--primary)] mb-2 uppercase">[ Commander Summary ]</h3>
-                            <p class="leading-relaxed text-sm md:text-base">
+                    <div class="animate-enter space-y-4 md:space-y-6">
+                        <div class="border border-[var(--secondary)] p-3 md:p-4 bg-black/50">
+                            <h3 class="text-[var(--primary)] mb-2 uppercase text-sm md:text-base">[ Commander Summary ]</h3>
+                            <p class="leading-relaxed text-xs md:text-base">
                                 > Actively learning Flutter & React JS.<br>
                                 > Enjoys difficult tasks.<br>
                                 > Rapid learning protocol activated (Fast Learner).
                             </p>
                         </div>
                         
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div class="border border-gray-800 p-4 data-row">
-                                <h4 class="text-xs text-[var(--secondary)] mb-1">PRIMARY DIRECTIVE</h4>
-                                <div class="text-lg">Mobile Engineering</div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
+                            <div class="border border-gray-800 p-3 md:p-4 data-row">
+                                <h4 class="text-[10px] md:text-xs text-[var(--secondary)] mb-1">PRIMARY DIRECTIVE</h4>
+                                <div class="text-base md:text-lg">Mobile Engineering</div>
                             </div>
-                            <div class="border border-gray-800 p-4 data-row">
-                                <h4 class="text-xs text-[var(--secondary)] mb-1">TOTAL EXP</h4>
-                                <div class="text-lg">> 9 Years Active Duty</div>
+                            <div class="border border-gray-800 p-3 md:p-4 data-row">
+                                <h4 class="text-[10px] md:text-xs text-[var(--secondary)] mb-1">TOTAL EXP</h4>
+                                <div class="text-base md:text-lg">> 9 Years Active Duty</div>
                             </div>
                         </div>
                     </div>
@@ -273,40 +311,40 @@
                 html: `
                     <div class="animate-enter space-y-6">
                         <div>
-                            <h3 class="text-[var(--primary)] border-b border-gray-800 pb-1 mb-3 uppercase">[ Core Technologies ]</h3>
-                            <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
-                                <div class="p-2 border border-[var(--secondary)] text-center hover:bg-[var(--primary-dim)] cursor-default transition-colors">
-                                    <i class="fa-brands fa-react block mb-2 text-xl"></i> React.js
+                            <h3 class="text-[var(--primary)] border-b border-gray-800 pb-1 mb-3 uppercase text-sm md:text-base">[ Core Technologies ]</h3>
+                            <div class="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-3">
+                                <div class="p-2 border border-[var(--secondary)] text-center hover:bg-[var(--primary-dim)] cursor-default transition-colors text-xs md:text-sm">
+                                    <i class="fa-brands fa-react block mb-1 md:mb-2 text-lg md:text-xl"></i> React.js
                                 </div>
-                                <div class="p-2 border border-[var(--secondary)] text-center hover:bg-[var(--primary-dim)] cursor-default transition-colors">
-                                    <i class="fa-brands fa-android block mb-2 text-xl"></i> Android Dev
+                                <div class="p-2 border border-[var(--secondary)] text-center hover:bg-[var(--primary-dim)] cursor-default transition-colors text-xs md:text-sm">
+                                    <i class="fa-brands fa-android block mb-1 md:mb-2 text-lg md:text-xl"></i> Android Dev
                                 </div>
-                                <div class="p-2 border border-[var(--secondary)] text-center hover:bg-[var(--primary-dim)] cursor-default transition-colors text-[var(--primary)] shadow-[0_0_10px_rgba(102,252,241,0.2)]">
-                                    <i class="fa-solid fa-mobile-screen-button block mb-2 text-xl"></i> Flutter
+                                <div class="p-2 border border-[var(--secondary)] text-center hover:bg-[var(--primary-dim)] cursor-default transition-colors text-[var(--primary)] shadow-[0_0_10px_rgba(102,252,241,0.2)] text-xs md:text-sm">
+                                    <i class="fa-solid fa-mobile-screen-button block mb-1 md:mb-2 text-lg md:text-xl"></i> Flutter
                                 </div>
-                                <div class="p-2 border border-gray-700 text-center hover:bg-[var(--primary-dim)] cursor-default transition-colors text-[var(--text-muted)]">
-                                    <i class="fa-brands fa-js block mb-2 text-xl"></i> JavaScript
+                                <div class="p-2 border border-gray-700 text-center hover:bg-[var(--primary-dim)] cursor-default transition-colors text-[var(--text-muted)] text-xs md:text-sm">
+                                    <i class="fa-brands fa-js block mb-1 md:mb-2 text-lg md:text-xl"></i> JavaScript
                                 </div>
-                                <div class="p-2 border border-gray-700 text-center hover:bg-[var(--primary-dim)] cursor-default transition-colors text-[var(--text-muted)]">
-                                    <i class="fa-brands fa-java block mb-2 text-xl"></i> Kotlin MP
+                                <div class="p-2 border border-gray-700 text-center hover:bg-[var(--primary-dim)] cursor-default transition-colors text-[var(--text-muted)] text-xs md:text-sm">
+                                    <i class="fa-brands fa-java block mb-1 md:mb-2 text-lg md:text-xl"></i> Kotlin MP
                                 </div>
-                                <div class="p-2 border border-gray-700 text-center hover:bg-[var(--primary-dim)] cursor-default transition-colors text-[var(--text-muted)]">
-                                    <i class="fa-solid fa-code block mb-2 text-xl"></i> Dart
+                                <div class="p-2 border border-gray-700 text-center hover:bg-[var(--primary-dim)] cursor-default transition-colors text-[var(--text-muted)] text-xs md:text-sm">
+                                    <i class="fa-solid fa-code block mb-1 md:mb-2 text-lg md:text-xl"></i> Dart
                                 </div>
                             </div>
                         </div>
 
                         <div>
-                            <h3 class="text-[var(--primary)] border-b border-gray-800 pb-1 mb-3 uppercase">[ Communication Protocols (Languages) ]</h3>
-                            <ul class="space-y-2">
-                                <li class="flex justify-between items-center data-row px-2 py-1">
-                                    <span>Malay</span> <span class="text-xs bg-[var(--secondary)] text-black px-2 py-0.5">NATIVE / BILINGUAL</span>
+                            <h3 class="text-[var(--primary)] border-b border-gray-800 pb-1 mb-3 uppercase text-sm md:text-base">[ Communication Protocols ]</h3>
+                            <ul class="space-y-2 text-xs md:text-sm">
+                                <li class="flex justify-between items-center data-row px-2 py-1.5">
+                                    <span>Malay</span> <span class="text-[10px] md:text-xs bg-[var(--secondary)] text-black px-2 py-0.5 whitespace-nowrap ml-2">NATIVE / BILINGUAL</span>
                                 </li>
-                                <li class="flex justify-between items-center data-row px-2 py-1">
-                                    <span>English</span> <span class="text-xs border border-[var(--secondary)] text-[var(--secondary)] px-2 py-0.5">LIMITED WORKING</span>
+                                <li class="flex justify-between items-center data-row px-2 py-1.5">
+                                    <span>English</span> <span class="text-[10px] md:text-xs border border-[var(--secondary)] text-[var(--secondary)] px-2 py-0.5 whitespace-nowrap ml-2">WORKING</span>
                                 </li>
-                                <li class="flex justify-between items-center data-row px-2 py-1">
-                                    <span>Japanese</span> <span class="text-xs border border-gray-600 text-gray-400 px-2 py-0.5">ELEMENTARY</span>
+                                <li class="flex justify-between items-center data-row px-2 py-1.5">
+                                    <span>Japanese</span> <span class="text-[10px] md:text-xs border border-gray-600 text-gray-400 px-2 py-0.5 whitespace-nowrap ml-2">ELEMENTARY</span>
                                 </li>
                             </ul>
                         </div>
@@ -314,40 +352,40 @@
                 `
             },
             'campaigns': {
-                title: '// CAMPAIGN_HISTORY (EXPERIENCE)',
+                title: '// CAMPAIGN_HISTORY',
                 id: 'EXP-03',
                 html: `
-                    <div class="animate-enter space-y-6 relative before:absolute before:inset-0 before:ml-2 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-[var(--secondary)] before:to-transparent">
+                    <div class="animate-enter space-y-6 relative before:absolute before:inset-0 before:ml-[11px] md:before:mx-auto md:before:translate-x-0 before:h-full before:w-[2px] before:bg-gradient-to-b before:from-transparent before:via-[var(--secondary)] before:to-transparent">
                         
                         <!-- Timeline Item 1 -->
-                        <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                            <div class="flex items-center justify-center w-6 h-6 rounded-full border-2 border-[var(--primary)] bg-[var(--bg-color)] text-[var(--primary)] absolute left-0 md:left-1/2 -translate-x-1/2 shadow-[0_0_10px_var(--primary)] z-10">
+                        <div class="relative flex items-start md:items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+                            <div class="flex items-center justify-center w-6 h-6 rounded-full border-2 border-[var(--primary)] bg-[var(--bg-color)] text-[var(--primary)] absolute left-0 md:left-1/2 -translate-x-0 md:-translate-x-1/2 shadow-[0_0_10px_var(--primary)] z-10 mt-2 md:mt-0">
                                 <div class="w-2 h-2 rounded-full bg-[var(--primary)] blinker"></div>
                             </div>
-                            <div class="w-[calc(100%-2rem)] md:w-[calc(50%-2rem)] pl-8 md:pl-0 md:group-odd:pl-8 md:group-even:pr-8">
-                                <div class="p-4 border border-[var(--primary)] bg-[var(--primary-dim)] relative">
-                                    <div class="text-[10px] text-[var(--secondary)] mb-1">MAY 2022 - PRESENT (4 YRS) // KL, MALAYSIA</div>
-                                    <h4 class="text-lg text-white font-bold">Xendit</h4>
-                                    <div class="text-sm text-[var(--primary)] mb-2">Mobile Engineer</div>
-                                    <ul class="text-xs md:text-sm space-y-1 text-[var(--text-main)]">
-                                        <li>> Develop new feature & maintain mobile application (Android/Flutter)</li>
-                                        <li>> Develop & maintain SDK for Kiosk to communicate EDC/Terminal (Kotlin Multiplatform)</li>
+                            <div class="w-full md:w-[calc(50%-2rem)] pl-10 md:pl-0 md:group-odd:pl-8 md:group-even:pr-8">
+                                <div class="p-3 md:p-4 border border-[var(--primary)] bg-[var(--primary-dim)] relative">
+                                    <div class="text-[9px] md:text-[10px] text-[var(--secondary)] mb-1">MAY 2022 - PRESENT // KL</div>
+                                    <h4 class="text-base md:text-lg text-white font-bold">Xendit</h4>
+                                    <div class="text-xs md:text-sm text-[var(--primary)] mb-2">Mobile Engineer</div>
+                                    <ul class="text-[11px] md:text-xs space-y-1 text-[var(--text-main)]">
+                                        <li>> Develop new feature & maintain app (Android/Flutter)</li>
+                                        <li>> Develop SDK for Kiosk EDC communication (KMP)</li>
                                     </ul>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Timeline Item 2 -->
-                        <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group">
-                            <div class="flex items-center justify-center w-6 h-6 rounded-full border border-[var(--secondary)] bg-[var(--bg-color)] absolute left-0 md:left-1/2 -translate-x-1/2 z-10">
+                        <div class="relative flex items-start md:items-center justify-between md:justify-normal md:odd:flex-row-reverse group">
+                            <div class="flex items-center justify-center w-6 h-6 rounded-full border border-[var(--secondary)] bg-[var(--bg-color)] absolute left-0 md:left-1/2 -translate-x-0 md:-translate-x-1/2 z-10 mt-2 md:mt-0">
                                 <div class="w-1.5 h-1.5 rounded-full bg-[var(--secondary)]"></div>
                             </div>
-                            <div class="w-[calc(100%-2rem)] md:w-[calc(50%-2rem)] pl-8 md:pl-0 md:group-odd:pl-8 md:group-even:pr-8">
-                                <div class="p-4 border border-gray-700 bg-black/40 hover:border-[var(--secondary)] transition-colors">
-                                    <div class="text-[10px] text-[var(--text-muted)] mb-1">AUG 2020 - MAY 2022 (1 YR 10 MOS)</div>
-                                    <h4 class="text-lg text-gray-200">Kiple</h4>
-                                    <div class="text-sm text-[var(--secondary)] mb-2">Senior Associate, Android Dev</div>
-                                    <ul class="text-xs md:text-sm space-y-1 text-[var(--text-muted)]">
+                            <div class="w-full md:w-[calc(50%-2rem)] pl-10 md:pl-0 md:group-odd:pl-8 md:group-even:pr-8">
+                                <div class="p-3 md:p-4 border border-gray-700 bg-black/40 hover:border-[var(--secondary)] transition-colors">
+                                    <div class="text-[9px] md:text-[10px] text-[var(--text-muted)] mb-1">AUG 2020 - MAY 2022</div>
+                                    <h4 class="text-base md:text-lg text-gray-200">Kiple</h4>
+                                    <div class="text-xs md:text-sm text-[var(--secondary)] mb-2">Snr Associate, Android Dev</div>
+                                    <ul class="text-[11px] md:text-xs space-y-1 text-[var(--text-muted)]">
                                         <li>> Develop/Maintain mobile application (Android/Flutter)</li>
                                     </ul>
                                 </div>
@@ -355,47 +393,34 @@
                         </div>
 
                          <!-- Timeline Item 3 -->
-                        <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group">
-                            <div class="flex items-center justify-center w-6 h-6 rounded-full border border-[var(--secondary)] bg-[var(--bg-color)] absolute left-0 md:left-1/2 -translate-x-1/2 z-10">
+                        <div class="relative flex items-start md:items-center justify-between md:justify-normal md:odd:flex-row-reverse group">
+                            <div class="flex items-center justify-center w-6 h-6 rounded-full border border-[var(--secondary)] bg-[var(--bg-color)] absolute left-0 md:left-1/2 -translate-x-0 md:-translate-x-1/2 z-10 mt-2 md:mt-0">
                                 <div class="w-1.5 h-1.5 rounded-full bg-[var(--secondary)]"></div>
                             </div>
-                            <div class="w-[calc(100%-2rem)] md:w-[calc(50%-2rem)] pl-8 md:pl-0 md:group-odd:pl-8 md:group-even:pr-8">
-                                <div class="p-4 border border-gray-700 bg-black/40 hover:border-[var(--secondary)] transition-colors">
-                                    <div class="text-[10px] text-[var(--text-muted)] mb-1">DEC 2015 - JUN 2020 (4 YRS 7 MOS) // SELANGOR</div>
-                                    <h4 class="text-lg text-gray-200">Dattel</h4>
-                                    <div class="text-sm text-[var(--secondary)] mb-2">Team Lead, Senior Android App Dev</div>
-                                    <ul class="text-xs md:text-sm space-y-1 text-[var(--text-muted)]">
+                            <div class="w-full md:w-[calc(50%-2rem)] pl-10 md:pl-0 md:group-odd:pl-8 md:group-even:pr-8">
+                                <div class="p-3 md:p-4 border border-gray-700 bg-black/40 hover:border-[var(--secondary)] transition-colors">
+                                    <div class="text-[9px] md:text-[10px] text-[var(--text-muted)] mb-1">DEC 2015 - JUN 2020</div>
+                                    <h4 class="text-base md:text-lg text-gray-200">Dattel</h4>
+                                    <div class="text-xs md:text-sm text-[var(--secondary)] mb-2">Team Lead, Snr Android Dev</div>
+                                    <ul class="text-[11px] md:text-xs space-y-1 text-[var(--text-muted)]">
                                         <li>> Assigned as team leader</li>
-                                        <li>> Developed android mobile app for company staff</li>
-                                        <li>> Developed app for tracking GPS/mobile data</li>
-                                        <li>> Developed main product of company</li>
+                                        <li>> Developed internal staff app & GPS tracking app</li>
+                                        <li>> Developed main company product</li>
                                     </ul>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Timeline Item 4 -->
-                        <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group">
-                            <div class="flex items-center justify-center w-6 h-6 rounded-full border border-gray-600 bg-[var(--bg-color)] absolute left-0 md:left-1/2 -translate-x-1/2 z-10"></div>
-                            <div class="w-[calc(100%-2rem)] md:w-[calc(50%-2rem)] pl-8 md:pl-0 md:group-odd:pl-8 md:group-even:pr-8">
-                                <div class="p-3 border border-gray-800 bg-black/20 text-gray-400 text-sm">
-                                    <span class="text-[var(--secondary)]">GATES IT Solution Sdn Bhd</span> | Apr 2015 - May 2015<br>
-                                    Multimedia Analyst Programmer. Dev app for payment collecting.
+                        <div class="relative flex items-start md:items-center justify-between md:justify-normal md:odd:flex-row-reverse group">
+                            <div class="flex items-center justify-center w-6 h-6 rounded-full border border-gray-600 bg-[var(--bg-color)] absolute left-0 md:left-1/2 -translate-x-0 md:-translate-x-1/2 z-10 mt-2 md:mt-0"></div>
+                            <div class="w-full md:w-[calc(50%-2rem)] pl-10 md:pl-0 md:group-odd:pl-8 md:group-even:pr-8">
+                                <div class="p-3 border border-gray-800 bg-black/20 text-gray-400 text-xs md:text-sm">
+                                    <span class="text-[var(--secondary)]">GATES IT Solution</span> | Apr 2015 - May 2015<br>
+                                    Multimedia Analyst Prog. App for payment collecting.
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Timeline Item 5 -->
-                        <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group">
-                            <div class="flex items-center justify-center w-6 h-6 rounded-full border border-gray-600 bg-[var(--bg-color)] absolute left-0 md:left-1/2 -translate-x-1/2 z-10"></div>
-                            <div class="w-[calc(100%-2rem)] md:w-[calc(50%-2rem)] pl-8 md:pl-0 md:group-odd:pl-8 md:group-even:pr-8">
-                                <div class="p-3 border border-gray-800 bg-black/20 text-gray-400 text-sm">
-                                    <span class="text-[var(--secondary)]">INFOPRO</span> | Sep 2014 - Dec 2014 (Intern)<br>
-                                    Mobile App Developer. Mobile/web banking app functionalities.
-                                </div>
-                            </div>
-                        </div>
-
                     </div>
                 `
             },
@@ -403,38 +428,38 @@
                 title: '// ARCHIVES (EDU & CERTS)',
                 id: 'ARCH-04',
                 html: `
-                    <div class="animate-enter space-y-6">
+                    <div class="animate-enter space-y-4 md:space-y-6">
                         
                         <!-- Education -->
-                        <div class="border border-[var(--secondary)] p-4 relative">
-                            <div class="absolute top-0 right-0 bg-[var(--secondary)] text-black px-2 py-1 text-xs font-bold">EDUCATION_LOG</div>
-                            <h3 class="text-lg text-[var(--primary)] uppercase mb-1">Universiti Teknologi MARA</h3>
-                            <div class="text-sm text-white">Bachelor of Science (BSc), Artificial Intelligence</div>
-                            <div class="text-xs text-[var(--text-muted)] mt-2">> TIMEFRAME: 2012 - 2015</div>
+                        <div class="border border-[var(--secondary)] p-3 md:p-4 relative mt-4 md:mt-0">
+                            <div class="absolute -top-3 right-2 bg-[var(--secondary)] text-black px-2 py-0.5 text-[10px] font-bold">EDUCATION_LOG</div>
+                            <h3 class="text-base md:text-lg text-[var(--primary)] uppercase mb-1">Universiti Teknologi MARA</h3>
+                            <div class="text-xs md:text-sm text-white">Bachelor of Science (BSc), Artificial Intelligence</div>
+                            <div class="text-[10px] md:text-xs text-[var(--text-muted)] mt-2">> TIMEFRAME: 2012 - 2015</div>
                         </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                             <!-- Certifications -->
                             <div>
-                                <h3 class="text-[var(--primary)] border-b border-gray-800 pb-1 mb-3 uppercase text-sm">[ Certifications ]</h3>
-                                <ul class="space-y-2 text-sm">
-                                    <li class="data-row pl-2 py-1"><i class="fa-solid fa-certificate text-[var(--secondary)] mr-2"></i> Infosys Java Stream Course</li>
-                                    <li class="data-row pl-2 py-1"><i class="fa-solid fa-certificate text-[var(--secondary)] mr-2"></i> CodinGame - JavaScript</li>
-                                    <li class="data-row pl-2 py-1"><i class="fa-solid fa-certificate text-[var(--secondary)] mr-2"></i> CodinGame - Dart</li>
-                                    <li class="data-row pl-2 py-1"><i class="fa-solid fa-certificate text-[var(--secondary)] mr-2"></i> CodinGame - ALGORITHMS (SILVER)</li>
-                                    <li class="data-row pl-2 py-1"><i class="fa-solid fa-certificate text-[var(--secondary)] mr-2"></i> Powerful Manager Programme</li>
+                                <h3 class="text-[var(--primary)] border-b border-gray-800 pb-1 mb-2 uppercase text-xs md:text-sm">[ Certifications ]</h3>
+                                <ul class="space-y-1 md:space-y-2 text-xs md:text-sm">
+                                    <li class="data-row pl-2 py-1 truncate"><i class="fa-solid fa-certificate text-[var(--secondary)] mr-2"></i> Infosys Java Stream Course</li>
+                                    <li class="data-row pl-2 py-1 truncate"><i class="fa-solid fa-certificate text-[var(--secondary)] mr-2"></i> CodinGame - JavaScript</li>
+                                    <li class="data-row pl-2 py-1 truncate"><i class="fa-solid fa-certificate text-[var(--secondary)] mr-2"></i> CodinGame - Dart</li>
+                                    <li class="data-row pl-2 py-1 truncate"><i class="fa-solid fa-certificate text-[var(--secondary)] mr-2"></i> CodinGame - ALGORITHMS</li>
+                                    <li class="data-row pl-2 py-1 truncate"><i class="fa-solid fa-certificate text-[var(--secondary)] mr-2"></i> Powerful Manager Progamme</li>
                                 </ul>
                             </div>
 
                             <!-- Awards -->
                             <div>
-                                <h3 class="text-[var(--primary)] border-b border-gray-800 pb-1 mb-3 uppercase text-sm">[ Honors & Awards ]</h3>
-                                <ul class="space-y-2 text-sm text-[var(--text-muted)]">
-                                    <li class="data-row pl-2 py-1">> <span class="text-yellow-500">1st Place</span> MAMPU Open Data Hackathon</li>
-                                    <li class="data-row pl-2 py-1">> <span class="text-yellow-500">1st Place</span> ProQuest Competition 2013</li>
-                                    <li class="data-row pl-2 py-1">> <span class="text-yellow-500">1st Place</span> 1Citizen Portfolio 2012</li>
-                                    <li class="data-row pl-2 py-1">> <span class="text-gray-300">2nd Place</span> ProQuest Competition 2012</li>
-                                    <li class="data-row pl-2 py-1">> 7th Place Al-Khawarizmi National Prog. Contest</li>
+                                <h3 class="text-[var(--primary)] border-b border-gray-800 pb-1 mb-2 uppercase text-xs md:text-sm">[ Honors & Awards ]</h3>
+                                <ul class="space-y-1 md:space-y-2 text-xs md:text-sm text-[var(--text-muted)]">
+                                    <li class="data-row pl-2 py-1 truncate">> <span class="text-yellow-500">1st</span> MAMPU Open Data Hackathon</li>
+                                    <li class="data-row pl-2 py-1 truncate">> <span class="text-yellow-500">1st</span> ProQuest Competition 2013</li>
+                                    <li class="data-row pl-2 py-1 truncate">> <span class="text-yellow-500">1st</span> 1Citizen Portfolio 2012</li>
+                                    <li class="data-row pl-2 py-1 truncate">> <span class="text-gray-300">2nd</span> ProQuest Competition 2012</li>
+                                    <li class="data-row pl-2 py-1 truncate">> 7th Place Al-Khawarizmi National Prog.</li>
                                 </ul>
                             </div>
                         </div>
@@ -442,52 +467,52 @@
                 `
             },
             'comms': {
-                title: '// COMMS_LINK (CONTACT)',
+                title: '// COMMS_LINK',
                 id: 'COMM-05',
                 html: `
                     <div class="animate-enter flex flex-col items-center justify-center h-full min-h-[300px] space-y-4">
-                        <div class="text-center mb-6">
-                            <i class="fa-solid fa-satellite text-4xl text-[var(--secondary)] mb-4 animate-pulse"></i>
-                            <h3 class="text-xl uppercase tracking-widest text-[var(--primary)]">Establish Connection</h3>
-                            <p class="text-sm text-[var(--text-muted)] mt-2">Awaiting transmission from allied units.</p>
+                        <div class="text-center mb-4 md:mb-6">
+                            <i class="fa-solid fa-satellite text-3xl md:text-4xl text-[var(--secondary)] mb-3 md:mb-4 animate-pulse"></i>
+                            <h3 class="text-lg md:text-xl uppercase tracking-widest text-[var(--primary)]">Establish Connection</h3>
+                            <p class="text-xs md:text-sm text-[var(--text-muted)] mt-1 md:mt-2">Awaiting transmission from allied units.</p>
                         </div>
 
-                        <div class="w-full max-w-md space-y-3">
-                            <a href="mailto:zariman.razari@gmail.com" class="flex items-center p-3 border border-gray-700 hover:border-[var(--primary)] hover:bg-[var(--primary-dim)] transition-all group">
-                                <div class="w-10 text-center"><i class="fa-solid fa-envelope text-[var(--secondary)] group-hover:text-[var(--primary)]"></i></div>
-                                <div class="flex-grow">
-                                    <div class="text-xs text-[var(--text-muted)] uppercase">Encrypted Email</div>
-                                    <div class="text-white">zariman.razari@gmail.com</div>
+                        <div class="w-full max-w-md space-y-2 md:space-y-3">
+                            <a href="mailto:zariman.razari@gmail.com" class="flex items-center p-2 md:p-3 border border-gray-700 hover:border-[var(--primary)] hover:bg-[var(--primary-dim)] transition-all group">
+                                <div class="w-8 md:w-10 text-center"><i class="fa-solid fa-envelope text-[var(--secondary)] group-hover:text-[var(--primary)] text-sm md:text-base"></i></div>
+                                <div class="flex-grow overflow-hidden">
+                                    <div class="text-[10px] md:text-xs text-[var(--text-muted)] uppercase">Encrypted Email</div>
+                                    <div class="text-sm md:text-base text-white truncate">zariman.razari@gmail.com</div>
                                 </div>
                             </a>
 
-                            <a href="tel:+60129053298" class="flex items-center p-3 border border-gray-700 hover:border-[var(--primary)] hover:bg-[var(--primary-dim)] transition-all group">
-                                <div class="w-10 text-center"><i class="fa-solid fa-phone text-[var(--secondary)] group-hover:text-[var(--primary)]"></i></div>
+                            <a href="tel:+60129053298" class="flex items-center p-2 md:p-3 border border-gray-700 hover:border-[var(--primary)] hover:bg-[var(--primary-dim)] transition-all group">
+                                <div class="w-8 md:w-10 text-center"><i class="fa-solid fa-phone text-[var(--secondary)] group-hover:text-[var(--primary)] text-sm md:text-base"></i></div>
                                 <div class="flex-grow">
-                                    <div class="text-xs text-[var(--text-muted)] uppercase">Direct Comms (Mobile)</div>
-                                    <div class="text-white">+60 12-905 3298</div>
+                                    <div class="text-[10px] md:text-xs text-[var(--text-muted)] uppercase">Direct Comms</div>
+                                    <div class="text-sm md:text-base text-white">+60 12-905 3298</div>
                                 </div>
                             </a>
 
-                            <a href="https://www.linkedin.com/in/zariman" target="_blank" class="flex items-center p-3 border border-gray-700 hover:border-[var(--primary)] hover:bg-[var(--primary-dim)] transition-all group">
-                                <div class="w-10 text-center"><i class="fa-brands fa-linkedin text-[var(--secondary)] group-hover:text-[var(--primary)]"></i></div>
-                                <div class="flex-grow">
-                                    <div class="text-xs text-[var(--text-muted)] uppercase">Professional Network</div>
-                                    <div class="text-white">linkedin.com/in/zariman</div>
+                            <a href="https://www.linkedin.com/in/zariman" target="_blank" class="flex items-center p-2 md:p-3 border border-gray-700 hover:border-[var(--primary)] hover:bg-[var(--primary-dim)] transition-all group">
+                                <div class="w-8 md:w-10 text-center"><i class="fa-brands fa-linkedin text-[var(--secondary)] group-hover:text-[var(--primary)] text-sm md:text-base"></i></div>
+                                <div class="flex-grow overflow-hidden">
+                                    <div class="text-[10px] md:text-xs text-[var(--text-muted)] uppercase">Professional Network</div>
+                                    <div class="text-sm md:text-base text-white truncate">linkedin.com/in/zariman</div>
                                 </div>
-                                <i class="fa-solid fa-arrow-up-right-from-square text-xs opacity-50"></i>
+                                <i class="fa-solid fa-arrow-up-right-from-square text-[10px] md:text-xs opacity-50 ml-2"></i>
                             </a>
 
-                            <div class="flex gap-3">
-                                <a href="https://zariman.dev/" target="_blank" class="flex-1 flex items-center justify-center p-3 border border-gray-700 hover:border-[var(--primary)] hover:bg-[var(--primary-dim)] transition-all text-center">
+                            <div class="flex flex-col sm:flex-row gap-2 md:gap-3">
+                                <a href="https://zariman.dev/" target="_blank" class="flex-1 flex items-center justify-center p-2 md:p-3 border border-gray-700 hover:border-[var(--primary)] hover:bg-[var(--primary-dim)] transition-all text-center">
                                     <div>
-                                        <i class="fa-solid fa-globe block text-[var(--secondary)] mb-1"></i>
+                                        <i class="fa-solid fa-globe inline-block sm:block text-[var(--secondary)] mr-2 sm:mr-0 mb-0 sm:mb-1"></i>
                                         <span class="text-xs">Web Portfolio</span>
                                     </div>
                                 </a>
-                                <a href="https://github.com/shiburagi" target="_blank" class="flex-1 flex items-center justify-center p-3 border border-gray-700 hover:border-[var(--primary)] hover:bg-[var(--primary-dim)] transition-all text-center">
+                                <a href="https://github.com/shiburagi" target="_blank" class="flex-1 flex items-center justify-center p-2 md:p-3 border border-gray-700 hover:border-[var(--primary)] hover:bg-[var(--primary-dim)] transition-all text-center">
                                     <div>
-                                        <i class="fa-brands fa-github block text-[var(--secondary)] mb-1"></i>
+                                        <i class="fa-brands fa-github inline-block sm:block text-[var(--secondary)] mr-2 sm:mr-0 mb-0 sm:mb-1"></i>
                                         <span class="text-xs">Git Repos</span>
                                     </div>
                                 </a>
@@ -500,33 +525,34 @@
 
         // --- UI LOGIC ---
         function loadModule(moduleId, btnElement) {
-            // Update Navigation state
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-            if(btnElement) btnElement.classList.add('active');
+            if(btnElement) {
+                btnElement.classList.add('active');
+                // Scroll horizontal nav to active item on mobile
+                btnElement.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+            }
 
-            // Load Data
             const data = database[moduleId];
             const display = document.getElementById('display-screen');
             const title = document.getElementById('module-title');
             const idTag = document.getElementById('module-id');
 
-            // Glitch effect on title change
             title.style.opacity = '0.5';
             setTimeout(() => {
                 title.textContent = data.title;
                 idTag.textContent = 'ID: ' + data.id;
                 display.innerHTML = data.html;
                 title.style.opacity = '1';
+                display.scrollTop = 0; // Reset scroll on load
             }, 150);
         }
 
-        // Initialize first module
         window.onload = () => {
             loadModule('overview', document.querySelector('.nav-btn'));
             initTacticalMap();
         };
 
-        // --- CANVAS BACKGROUND LOGIC (Animated Hex Grid Strategy Map) ---
+        // --- CANVAS BACKGROUND LOGIC ---
         function initTacticalMap() {
             const canvas = document.getElementById('tactical-map');
             const ctx = canvas.getContext('2d');
@@ -539,12 +565,13 @@
             window.addEventListener('resize', resize);
             resize();
 
-            const hexRadius = 40;
+            // Slightly smaller hexes for mobile feel
+            const isMobile = window.innerWidth < 768;
+            const hexRadius = isMobile ? 30 : 40; 
             const hexHeight = Math.sqrt(3) * hexRadius;
             const hexWidth = 2 * hexRadius;
             let offset = 0;
 
-            // Draw a single hexagon
             function drawHex(x, y, opacity = 0.1) {
                 ctx.beginPath();
                 for (let i = 0; i < 6; i++) {
@@ -556,13 +583,12 @@
                     else ctx.lineTo(px, py);
                 }
                 ctx.closePath();
-                ctx.strokeStyle = `rgba(69, 162, 158, ${opacity})`; // Secondary color
+                ctx.strokeStyle = `rgba(69, 162, 158, ${opacity})`;
                 ctx.lineWidth = 1;
                 ctx.stroke();
             }
 
-            // Tactical dots/blips that move around
-            const blips = Array.from({length: 15}, () => ({
+            const blips = Array.from({length: isMobile ? 8 : 15}, () => ({
                 x: Math.random() * width,
                 y: Math.random() * height,
                 vx: (Math.random() - 0.5) * 0.5,
@@ -574,17 +600,14 @@
             function animate() {
                 ctx.clearRect(0, 0, width, height);
                 
-                // Slowly pan grid upwards
                 offset += 0.2;
                 if(offset > hexHeight) offset = 0;
 
-                // Draw hex grid
                 for (let x = 0; x < width + hexWidth; x += hexWidth * 0.75) {
                     for (let y = -hexHeight; y < height + hexHeight; y += hexHeight) {
                         const isOffset = (Math.round(x / (hexWidth * 0.75)) % 2 !== 0);
                         const actualY = y + (isOffset ? hexHeight / 2 : 0) + offset;
                         
-                        // Distance from center to fade edges
                         const distToCenter = Math.hypot(x - width/2, actualY - height/2);
                         const maxDist = Math.max(width, height) / 1.5;
                         const opacity = Math.max(0.02, 0.15 - (distToCenter / maxDist) * 0.15);
@@ -593,13 +616,11 @@
                     }
                 }
 
-                // Update and draw blips
                 blips.forEach(blip => {
                     blip.x += blip.vx;
                     blip.y += blip.vy;
                     blip.pulse += 0.05;
 
-                    // Wrap around
                     if(blip.x < 0) blip.x = width;
                     if(blip.x > width) blip.x = 0;
                     if(blip.y < 0) blip.y = height;
@@ -608,10 +629,9 @@
                     const blipOpacity = (Math.sin(blip.pulse) + 1) / 2 * 0.5 + 0.1;
                     ctx.beginPath();
                     ctx.arc(blip.x, blip.y, blip.size, 0, Math.PI * 2);
-                    ctx.fillStyle = `rgba(102, 252, 241, ${blipOpacity})`; // Primary color
+                    ctx.fillStyle = `rgba(102, 252, 241, ${blipOpacity})`;
                     ctx.fill();
                     
-                    // Draw small connecting lines to nearby blips to look tactical
                     blips.forEach(other => {
                         const dist = Math.hypot(blip.x - other.x, blip.y - other.y);
                         if(dist < 100 && dist > 0) {
